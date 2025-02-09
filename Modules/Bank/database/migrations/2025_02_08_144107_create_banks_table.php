@@ -23,6 +23,7 @@ return new class extends Migration {
         Schema::create('bank_accounts', function (Blueprint $table) {
             $table->string('number', 18)->primary();
             $table->foreignIdFor(\Modules\Bank\Models\Bank::class)->constrained()->cascadeOnDelete();
+            // use user mobile instead of user id for better readability tables
             $table->string('user_mobile', 11)->index();
             $table->foreign('user_mobile')->references('mobile')->on(app(\App\Models\User::class)->getTable())->cascadeOnDelete();
             $table->string('status', 30);
