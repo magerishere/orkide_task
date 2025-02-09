@@ -6,5 +6,5 @@ use Modules\Base\Repository\Contracts\BaseRepositoryInterface;
 
 interface TransactionRepositoryInterface extends BaseRepositoryInterface
 {
-
+    public function newRefNumber(): string;
 }
