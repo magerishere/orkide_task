@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\Bank\Http\Controllers\BankController;
+use Modules\Bank\Http\Controllers\V1\Api\BankController;
 
 /*
 |--------------------------------------------------------------------------

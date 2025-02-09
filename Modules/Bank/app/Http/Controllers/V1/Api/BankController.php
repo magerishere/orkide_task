@@ -6,10 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Modules\Bank\Exceptions\BankAccountBalanceNotEnoughException;
+use Modules\Bank\Exceptions\UserHasNoBankAccountException;
 use Modules\Bank\Http\Requests\V1\Api\BankCardToCardRequest;
 use Modules\Bank\Repository\Contracts\BankAccountCardRepositoryInterface;
 use Modules\Bank\Repository\Contracts\BankAccountRepositoryInterface;
-use Modules\Bank\Repository\Contracts\BankRepositoryInterface;
 use Modules\Transaction\Enums\TransactionStatus;
 use Modules\Transaction\Repository\Contracts\TransactionRepositoryInterface;
 
@@ -76,16 +76,19 @@ class BankController extends Controller
         User $user,
         BankAccountCardRepositoryInterface $bankAccountCardRepository,
         BankAccountRepositoryInterface $bankAccountRepository,
-        BankRepositoryInterface $bankRepository,
         TransactionRepositoryInterface $transactionRepository,
     )
     {
         try {
             $bankAccount = $bankAccountRepository->freshQuery()->findBy('user_mobile',$user->mobile)->getModel();
+
+            if (!$bankAccount->getKey()) {
+                throw new UserHasNoBankAccountException();
+            }
+
             if(! $bankAccount->checkBalance(amount: $request->get('amount'))) {
                 throw new BankAccountBalanceNotEnoughException();
             }
-//            $bank = $bankRepository->findByPrefixCardNumber(prefix: $request->get('prefix_from_card_number'))->getModel();
 
             $fromCard = $bankAccountCardRepository->freshQuery()->findById(id: $request->get('from_card_number'))->getModel();
             if(! $fromCard->getKey()) {
@@ -115,7 +118,9 @@ class BankController extends Controller
                 ]
             );
 
-             return apiResponse([],__('base::v1.successful_loaded'));
+            return apiResponse([
+                'transaction' => $transactionRepository->getModel(asResource: true),
+            ], __('bank::v1.transaction_completed'));
         } catch (\Exception $exception) {
             report($exception);
             return apiResponse([],$exception);

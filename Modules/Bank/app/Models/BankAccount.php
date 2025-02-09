@@ -44,4 +44,9 @@ class BankAccount extends Model
     {
         return $this->belongsTo(app(BankRepositoryInterface::class)->getModel());
     }
+
+    public function checkBalance(int $amount): bool
+    {
+        return intval($this->balance) >= $amount;
+    }
 }
