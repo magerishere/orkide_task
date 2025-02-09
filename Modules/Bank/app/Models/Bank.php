@@ -3,6 +3,7 @@
 namespace Modules\Bank\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Modules\Bank\Enums\CountryCode;
 
 class Bank extends Model
 {
@@ -18,4 +19,11 @@ class Bank extends Model
         'name',
         'name_fa',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'country_code' => CountryCode::class,
+        ];
+    }
 }

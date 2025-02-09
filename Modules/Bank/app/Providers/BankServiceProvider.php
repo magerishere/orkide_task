@@ -5,6 +5,7 @@ namespace Modules\Bank\Providers;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
+use Modules\Bank\Enums\CountryCode;
 use Modules\Bank\Models\Bank;
 use Modules\Bank\Repository\BankRepository;
 use Modules\Bank\Repository\Contracts\BankRepositoryInterface;
@@ -43,6 +44,9 @@ class BankServiceProvider extends ServiceProvider
         $this->app->bind(BankRepositoryInterface::class, function (Application $app) {
             return new BankRepository(
                 query: Bank::query(),
+                defaultCreateData: [
+                    'country_code' => CountryCode::IR,
+                ],
             );
         });
     }
