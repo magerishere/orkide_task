@@ -9,4 +9,10 @@ class BankAccountCard extends Model
     public $incrementing = false;
     protected $keyType = 'string';
     protected $primaryKey = 'number';
+
+    protected $fillable = [
+        'number',
+        'bank_account_number',
+        'status',
+    ];
 }
