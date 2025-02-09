@@ -47,7 +47,7 @@ class UserFactory extends Factory
         ]);
     }
 
-    public function configure()
+    public function configure(): self
     {
         return $this->afterCreating(function (User $user) {
             $bankRepo = app(BankRepositoryInterface::class);
