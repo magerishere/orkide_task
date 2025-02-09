@@ -5,13 +5,17 @@ namespace Modules\Bank\Providers;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
+use Modules\Bank\Enums\BankAccountCardStatus;
 use Modules\Bank\Enums\BankAccountStatus;
 use Modules\Bank\Enums\BankAccountType;
 use Modules\Bank\Enums\CountryCode;
 use Modules\Bank\Models\Bank;
 use Modules\Bank\Models\BankAccount;
+use Modules\Bank\Models\BankAccountCard;
+use Modules\Bank\Repository\BankAccountCardRepository;
 use Modules\Bank\Repository\BankAccountRepository;
 use Modules\Bank\Repository\BankRepository;
+use Modules\Bank\Repository\Contracts\BankAccountCardRepositoryInterface;
 use Modules\Bank\Repository\Contracts\BankAccountRepositoryInterface;
 use Modules\Bank\Repository\Contracts\BankRepositoryInterface;
 use Nwidart\Modules\Traits\PathNamespace;
@@ -60,6 +64,14 @@ class BankServiceProvider extends ServiceProvider
                 defaultCreateData: [
                     'status' => BankAccountStatus::ACTIVE,
                     'type' => BankAccountType::DEPOSIT,
+                ],
+            );
+        });
+        $this->app->bind(BankAccountCardRepositoryInterface::class, function (Application $app) {
+            return new BankAccountCardRepository(
+                query: BankAccountCard::query(),
+                defaultCreateData: [
+                    'status' => BankAccountCardStatus::ACTIVE,
                 ],
             );
         });
