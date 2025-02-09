@@ -9,4 +9,12 @@ class Transaction extends Model
     public $incrementing = false;
     protected $keyType = 'string';
     protected $primaryKey = 'ref_number';
+
+    protected $fillable = [
+        'ref_number',
+        'from_bank_account_card_number',
+        'to_bank_account_card_number',
+        'status',
+        'amount'
+    ];
 }
