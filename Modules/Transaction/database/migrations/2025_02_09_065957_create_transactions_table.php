@@ -12,8 +12,8 @@ return new class extends Migration {
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->string('ref_number', 10)->primary();
-            $table->foreignIdFor(\Modules\Bank\Models\BankAccountCard::class, 'from_bank_account_card_number')->constrained()->cascadeOnDelete();
-            $table->foreignIdFor(\Modules\Bank\Models\BankAccountCard::class, 'to_bank_account_card_number')->constrained()->cascadeOnDelete();
+            $table->foreignIdFor(\Modules\Bank\Models\BankAccountCard::class, 'from_bank_account_card_number')->comment('Origin Card')->constrained()->cascadeOnDelete();
+            $table->foreignIdFor(\Modules\Bank\Models\BankAccountCard::class, 'to_bank_account_card_number')->comment('Destination Card')->constrained()->cascadeOnDelete();
             $table->string('status', 30);
             $table->string('amount');
             $table->timestamps();
