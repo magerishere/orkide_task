@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +20,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        $this->builderMacro();
+    }
+
+    private function builderMacro(): void
+    {
+        Builder::macro('freshQuery', function () {
+            return $this->getModel()->newQuery();
+        });
     }
 }
