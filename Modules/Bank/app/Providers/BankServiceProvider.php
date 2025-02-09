@@ -7,7 +7,10 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Modules\Bank\Enums\CountryCode;
 use Modules\Bank\Models\Bank;
+use Modules\Bank\Models\BankAccount;
+use Modules\Bank\Repository\BankAccountRepository;
 use Modules\Bank\Repository\BankRepository;
+use Modules\Bank\Repository\Contracts\BankAccountRepositoryInterface;
 use Modules\Bank\Repository\Contracts\BankRepositoryInterface;
 use Nwidart\Modules\Traits\PathNamespace;
 use RecursiveDirectoryIterator;
@@ -47,6 +50,11 @@ class BankServiceProvider extends ServiceProvider
                 defaultCreateData: [
                     'country_code' => CountryCode::IR,
                 ],
+            );
+        });
+        $this->app->bind(BankAccountRepositoryInterface::class, function (Application $app) {
+            return new BankAccountRepository(
+                query: BankAccount::query(),
             );
         });
     }
