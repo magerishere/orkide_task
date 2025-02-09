@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\Bank\Http\Controllers\BankController;
+use Modules\Bank\Http\Controllers\V1\Api\BankController;
 
 /*
  *--------------------------------------------------------------------------
@@ -14,6 +14,8 @@ use Modules\Bank\Http\Controllers\BankController;
  *
 */
 
-Route::middleware(['auth:sanctum'])->prefix('v1')->group(function () {
-    Route::apiResource('bank', BankController::class)->names('bank');
+Route::middleware([])->prefix('banks')->as('banks.')->controller(BankController::class)->group(function () {
+    Route::prefix('{user}')->group(function() {
+        Route::post('/card_to_card','cardToCard');
+    });
 });
