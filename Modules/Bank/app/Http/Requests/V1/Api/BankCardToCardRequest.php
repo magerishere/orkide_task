@@ -27,11 +27,12 @@ class BankCardToCardRequest extends FormRequest
     public function rules(BankRepositoryInterface $bankRepository, BankAccountCardRepositoryInterface $bankAccountCardRepository): array
     {
         $bankTable = $bankRepository->getModel()->getTable();
+        $bankAccountCardTable = $bankAccountCardRepository->getModel()->getTable();
         return [
             'prefix_from_card_number' => ['required', Rule::exists($bankTable, 'prefix_card_number')],
             'prefix_to_card_number' => ['required', Rule::exists($bankTable, 'prefix_card_number')],
-            'from_card_number' => ['required', 'digits:16'],
-            'to_card_number' => ['required', 'digits:16', Rule::exists($bankAccountCardRepository->getModel()->getTable(), 'number')],
+            'from_card_number' => ['required', 'digits:16', Rule::exists($bankAccountCardTable, 'number')],
+            'to_card_number' => ['required', 'digits:16', Rule::exists($bankAccountCardTable, 'number')],
             'amount' => ['required', 'integer', 'min:1000', 'max:50000000'],
         ];
     }

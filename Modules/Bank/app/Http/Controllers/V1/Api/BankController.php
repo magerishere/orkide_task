@@ -5,12 +5,16 @@ namespace Modules\Bank\Http\Controllers\V1\Api;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Modules\Bank\Enums\BankAccountStatus;
 use Modules\Bank\Exceptions\BankAccountBalanceNotEnoughException;
+use Modules\Bank\Exceptions\BankAccountInActiveException;
 use Modules\Bank\Exceptions\UserHasNoBankAccountException;
 use Modules\Bank\Http\Requests\V1\Api\BankCardToCardRequest;
+use Modules\Bank\Models\BankAccount;
 use Modules\Bank\Repository\Contracts\BankAccountCardRepositoryInterface;
 use Modules\Bank\Repository\Contracts\BankAccountRepositoryInterface;
 use Modules\Transaction\Enums\TransactionStatus;
+use Modules\Transaction\Models\Transaction;
 use Modules\Transaction\Repository\Contracts\TransactionRepositoryInterface;
 
 class BankController extends Controller
@@ -80,35 +84,24 @@ class BankController extends Controller
     )
     {
         try {
-            $bankAccount = $bankAccountRepository->freshQuery()->findBy('user_mobile',$user->mobile)->getModel();
+            $fromCardNumber = $request->get('from_card_number');
+            $toCardNumber = $request->get('to_card_number');
+            $amount = $request->get('amount');
 
-            if (!$bankAccount->getKey()) {
-                throw new UserHasNoBankAccountException();
-            }
+            [$fromCard, $toCard] = $this->getCards(bankAccountCardRepository: $bankAccountCardRepository, fromCardNumber: $fromCardNumber, toCardNumber: $toCardNumber);
 
-            if(! $bankAccount->checkBalance(amount: $request->get('amount'))) {
-                throw new BankAccountBalanceNotEnoughException();
-            }
+            $bankAccount = $fromCard->account;
 
-            $fromCard = $bankAccountCardRepository->freshQuery()->findById(id: $request->get('from_card_number'))->getModel();
-            if(! $fromCard->getKey()) {
+            $this->checkBankAccountStatus(bankAccount: $bankAccount);
 
-                $fromCard = $bankAccountCardRepository->freshQuery()->create(
-                    data: [
-                        'number' => $request->get('from_card_number'),
-                        'bank_account_number' => $bankAccount->number,
-                    ]
-                )->getModel();
-            }
+            $this->checkBankAccountBalance(bankAccount: $bankAccount, amount: $amount);
 
-            $toCard = $bankAccountCardRepository->freshQuery()->findById(id: $request->get('to_card_number'))->getModel();
-
-            $transactionRepository->freshQuery()->create([
-                'ref_number' => $transactionRepository->newRefNumber(),
-                'from_bank_account_card_number' => $fromCard->number,
-                'to_bank_account_card_number' => $toCard->number,
-                'amount' => $request->get('amount'),
-            ]);
+            $this->createTransactionsOfCardToCard(
+                transactionRepository: $transactionRepository,
+                fromCardNumber: $fromCardNumber,
+                toCardNumber: $toCardNumber,
+                amount: $amount
+            );
 
             $bankAccountRepository->decrementBalance(amount: $request->get('amount'));
 
@@ -125,5 +118,40 @@ class BankController extends Controller
             report($exception);
             return apiResponse([],$exception);
         }
+    }
+
+    private function getCards(BankAccountCardRepositoryInterface $bankAccountCardRepository, string $fromCardNumber, string $toCardNumber): array
+    {
+        return [
+            $bankAccountCardRepository->freshQuery()->findById(id: $fromCardNumber)->getModel(),
+            $bankAccountCardRepository->freshQuery()->findById(id: $toCardNumber)->getModel(),
+        ];
+    }
+
+    private function checkBankAccountStatus(?BankAccount $bankAccount): void
+    {
+        if (!$bankAccount) {
+            throw new UserHasNoBankAccountException();
+        }
+        if ($bankAccount->status == BankAccountStatus::INACTIVE) {
+            throw new BankAccountInActiveException(__('bank::v1.errors.bank_account_in_active', ['account_number' => $bankAccount->number]));
+        }
+    }
+
+    private function checkBankAccountBalance(?BankAccount $bankAccount, int $amount): void
+    {
+        if (!$bankAccount->checkBalance(amount: $amount)) {
+            throw new BankAccountBalanceNotEnoughException();
+        }
+    }
+
+    private function createTransactionsOfCardToCard(TransactionRepositoryInterface $transactionRepository, string $fromCardNumber, string $toCardNumber, int $amount): Transaction
+    {
+        return $transactionRepository->freshQuery()->create([
+            'ref_number' => $transactionRepository->newRefNumber(),
+            'from_bank_account_card_number' => $fromCardNumber,
+            'to_bank_account_card_number' => $toCardNumber,
+            'amount' => $amount,
+        ])->getModel();
     }
 }
