@@ -21,4 +21,6 @@ interface BaseRepositoryInterface
     public function getCollection(bool $asResource = false): Collection|LengthAwarePaginator|LazyCollection|ResourceCollection;
 
     public function create(array $data = []): self;
+
+    public function mergeCreateData(array $data): array;
 }

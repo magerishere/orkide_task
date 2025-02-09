@@ -60,7 +60,7 @@ class BaseRepository implements BaseRepositoryInterface
     }
 
 
-    private function mergeCreateData(array $data): array
+    public function mergeCreateData(array $data): array
     {
         return array_merge($this->defaultCreateData, $data);
     }
