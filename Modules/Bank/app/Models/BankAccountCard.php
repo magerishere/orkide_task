@@ -3,6 +3,7 @@
 namespace Modules\Bank\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Modules\Bank\Enums\BankAccountCardStatus;
 
 class BankAccountCard extends Model
 {
@@ -15,4 +16,11 @@ class BankAccountCard extends Model
         'bank_account_number',
         'status',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'status' => BankAccountCardStatus::class,
+        ];
+    }
 }

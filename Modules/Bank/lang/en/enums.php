@@ -1,5 +1,6 @@
 <?php
 
+use Modules\Bank\Enums\BankAccountCardStatus;
 use Modules\Bank\Enums\BankAccountStatus;
 use Modules\Bank\Enums\BankAccountType;
 
@@ -11,5 +12,9 @@ return [
     BankAccountType::class => [
         BankAccountType::DEPOSIT->name => 'Deposit',
         BankAccountType::FACILITY->name => 'Facility'
+    ],
+    BankAccountCardStatus::class => [
+        BankAccountCardStatus::ACTIVE->name => 'Active',
+        BankAccountCardStatus::INACTIVE->name => 'InActive'
     ],
 ];
