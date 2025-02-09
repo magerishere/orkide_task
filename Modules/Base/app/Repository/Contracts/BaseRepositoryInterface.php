@@ -14,6 +14,8 @@ interface BaseRepositoryInterface
 {
     public function freshQuery(): self;
 
+    public function freshModel(): self;
+
     public function getQuery(): Builder;
 
     public function getModel(bool $asResource = false): Model|JsonResource;
@@ -24,7 +26,15 @@ interface BaseRepositoryInterface
 
     public function mergeCreateData(array $data, bool $removeIfNull = false): array;
 
+    public function update(array $data): self;
     public function randomly(): self;
 
+    public function where(...$args): self;
+
+    public function exists(): bool;
+
+    public function findBy(...$args): self;
+
+    public function findById(int|string $id, ?string $column = null): self;
     public function first(): self;
 }

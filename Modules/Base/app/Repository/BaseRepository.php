@@ -33,6 +33,13 @@ class BaseRepository implements BaseRepositoryInterface
         return $this;
     }
 
+    public function freshModel(): BaseRepositoryInterface
+    {
+        $this->model = $this->model->refresh();
+
+        return $this;
+    }
+
     public function getQuery(): Builder
     {
         return $this->query;
@@ -69,15 +76,59 @@ class BaseRepository implements BaseRepositoryInterface
             : $data;
     }
 
+    public function update(array $data): BaseRepositoryInterface
+    {
+        $this->model->update(attributes: $data);
+
+        $this->freshModel();
+
+        return $this;
+    }
+
     public function randomly(): BaseRepositoryInterface
     {
         $this->query->inRandomOrder();
         return $this;
     }
 
+    public function where(...$args): BaseRepositoryInterface
+    {
+        $this->query->where(...$args);
+
+        return $this;
+    }
+
+    public function exists(): bool
+    {
+        return $this->query->exists();
+    }
+
+    public function findBy(...$args): BaseRepositoryInterface
+    {
+        $this->where(...$args)->first();
+
+        return $this;
+    }
+
+    public function findById(int|string $id, ?string $column = null): BaseRepositoryInterface
+    {
+        $column ??= $this->model->getKeyName();
+
+        return $this->findBy($column, $id);
+    }
+
+
     public function first(): BaseRepositoryInterface
     {
-        $this->model = $this->query->first();
+        return $this->setModel(model: $this->query->first());
+    }
+
+    private function setModel(?Model $model = null): BaseRepositoryInterface
+    {
+        if ($model instanceof Model) {
+            $this->model = $model;
+        }
+
         return $this;
     }
 }
