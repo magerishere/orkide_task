@@ -4,16 +4,17 @@ namespace Modules\User\Database\Seeders;
 
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Modules\User\Repository\Contracts\UserRepositoryInterface;
 
 class UserDatabaseSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
-    public function run(): void
+    public function run(UserRepositoryInterface $userRepository): void
     {
         foreach ($this->defaultUsers() as $user) {
-            User::factory()->create(attributes: $user);
+            $userRepository->getModel(asResource: false)::factory()->create(attributes: $user);
         }
     }
 
