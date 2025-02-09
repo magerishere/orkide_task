@@ -2,9 +2,13 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Modules\Bank\Database\Factories\BankAccountFactory;
+use Modules\Bank\Repository\Contracts\BankAccountRepositoryInterface;
+use Modules\Bank\Repository\Contracts\BankRepositoryInterface;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
@@ -42,4 +46,25 @@ class UserFactory extends Factory
             'email_verified_at' => null,
         ]);
     }
+
+    public function configure()
+    {
+        return $this->afterCreating(function (User $user) {
+            $bankRepo = app(BankRepositoryInterface::class);
+            $bankAccountRepo = app(BankAccountRepositoryInterface::class);
+
+            $data = $bankAccountRepo->mergeCreateData(data: [
+                'user_mobile' => $user->mobile,
+                'status' => null,
+                'type' => null,
+            ], removeIfNull: true);
+
+            for ($i = 0; $i < rand(1, 5); $i++) {
+                $bank = $bankRepo->freshQuery()->randomly()->first()->getModel();
+                $data['bank_code'] = $bank->code;
+                $bankAccountRepo->getModel()::factory()->create(attributes: $data);
+            }
+        });
+    }
+
 }

@@ -13,8 +13,9 @@ class UserDatabaseSeeder extends Seeder
      */
     public function run(UserRepositoryInterface $userRepository): void
     {
-        foreach ($this->defaultUsers() as $user) {
-            $userRepository->getModel(asResource: false)::factory()->create(attributes: $user);
+        foreach ($this->defaultUsers() as $data) {
+            $data = $userRepository->mergeCreateData(data: $data);
+            $userRepository->getModel()::factory()->create(attributes: $data);
         }
     }
 
