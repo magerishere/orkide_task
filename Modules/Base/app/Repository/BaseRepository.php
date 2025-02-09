@@ -38,14 +38,14 @@ class BaseRepository implements BaseRepositoryInterface
         return $this->query;
     }
 
-    public function getModel(bool $asResource = true): Model|JsonResource
+    public function getModel(bool $asResource = false): Model|JsonResource
     {
         return $asResource
             ? new $this->apiResource($this->model)
             : $this->model;
     }
 
-    public function getCollection(bool $asResource = true): Collection|LengthAwarePaginator|LazyCollection|ResourceCollection
+    public function getCollection(bool $asResource = false): Collection|LengthAwarePaginator|LazyCollection|ResourceCollection
     {
         return $asResource
             ? new $this->apiResourceCollection($this->collection)

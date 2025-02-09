@@ -16,9 +16,9 @@ interface BaseRepositoryInterface
 
     public function getQuery(): Builder;
 
-    public function getModel(bool $asResource = true): Model|JsonResource;
+    public function getModel(bool $asResource = false): Model|JsonResource;
 
-    public function getCollection(bool $asResource = true): Collection|LengthAwarePaginator|LazyCollection|ResourceCollection;
+    public function getCollection(bool $asResource = false): Collection|LengthAwarePaginator|LazyCollection|ResourceCollection;
 
     public function create(array $data = []): self;
 }
