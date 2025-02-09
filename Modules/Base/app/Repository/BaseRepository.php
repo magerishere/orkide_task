@@ -60,8 +60,24 @@ class BaseRepository implements BaseRepositoryInterface
     }
 
 
-    public function mergeCreateData(array $data): array
+    public function mergeCreateData(array $data, bool $removeIfNull = false): array
     {
-        return array_merge($this->defaultCreateData, $data);
+        $data = array_merge($this->defaultCreateData, $data);
+
+        return $removeIfNull
+            ? array_filter($data, fn($item) => !is_null($item))
+            : $data;
+    }
+
+    public function randomly(): BaseRepositoryInterface
+    {
+        $this->query->inRandomOrder();
+        return $this;
+    }
+
+    public function first(): BaseRepositoryInterface
+    {
+        $this->model = $this->query->first();
+        return $this;
     }
 }

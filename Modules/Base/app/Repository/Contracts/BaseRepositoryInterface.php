@@ -22,5 +22,9 @@ interface BaseRepositoryInterface
 
     public function create(array $data = []): self;
 
-    public function mergeCreateData(array $data): array;
+    public function mergeCreateData(array $data, bool $removeIfNull = false): array;
+
+    public function randomly(): self;
+
+    public function first(): self;
 }
