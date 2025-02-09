@@ -5,9 +5,11 @@ namespace Modules\Bank\Models;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Modules\Bank\Database\Factories\BankAccountFactory;
 use Modules\Bank\Enums\BankAccountStatus;
 use Modules\Bank\Enums\BankAccountType;
+use Modules\Bank\Repository\Contracts\BankRepositoryInterface;
 
 class BankAccount extends Model
 {
@@ -36,5 +38,10 @@ class BankAccount extends Model
     protected static function newFactory(): Factory
     {
         return BankAccountFactory::new();
+    }
+
+    public function bank(): BelongsTo
+    {
+        return $this->belongsTo(app(BankRepositoryInterface::class)->getModel());
     }
 }
