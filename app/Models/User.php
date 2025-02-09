@@ -12,10 +12,6 @@ class User extends Authenticatable
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
-    public $incrementing = false;
-    protected $keyType = 'string';
-    protected $primaryKey = 'mobile';
-
     /**
      * The attributes that are mass assignable.
      *
@@ -48,5 +44,10 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function getRouteKeyName()
+    {
+        return 'mobile';
     }
 }
