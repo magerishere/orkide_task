@@ -13,8 +13,8 @@ return new class extends Migration {
         Schema::create('banks', function (Blueprint $table) {
             $table->string('code', 3)->primary();
             $table->string('country_code', 2)->comment('ISO alpha-2');
-            $table->string('prefix_structure', 2);
-            $table->string('prefix_card_number', 6);
+            $table->string('prefix_structure', 2)->unique();
+            $table->string('prefix_card_number', 6)->unique();
             $table->string('name');
             $table->string('name_fa');
             $table->timestamps();
