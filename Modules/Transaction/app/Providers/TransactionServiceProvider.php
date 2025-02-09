@@ -2,8 +2,13 @@
 
 namespace Modules\Transaction\Providers;
 
+use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
+use Modules\Transaction\Enums\TransactionStatus;
+use Modules\Transaction\Models\Transaction;
+use Modules\Transaction\Repository\Contracts\TransactionRepositoryInterface;
+use Modules\Transaction\Repository\TransactionRepository;
 use Nwidart\Modules\Traits\PathNamespace;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -36,6 +41,14 @@ class TransactionServiceProvider extends ServiceProvider
     {
         $this->app->register(EventServiceProvider::class);
         $this->app->register(RouteServiceProvider::class);
+        $this->app->bind(TransactionRepositoryInterface::class, function (Application $app) {
+            return new TransactionRepository(
+                query: Transaction::query(),
+                defaultCreateData: [
+                    'status' => TransactionStatus::PENDING,
+                ],
+            );
+        });
     }
 
     /**
