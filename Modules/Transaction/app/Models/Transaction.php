@@ -3,6 +3,7 @@
 namespace Modules\Transaction\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Modules\Transaction\Enums\TransactionStatus;
 
 class Transaction extends Model
 {
@@ -17,4 +18,11 @@ class Transaction extends Model
         'status',
         'amount'
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'status' => TransactionStatus::class,
+        ];
+    }
 }
