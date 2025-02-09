@@ -6,6 +6,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Modules\Transaction\Enums\TransactionStatus;
+use Modules\Transaction\Http\Resources\V1\TransactionResource;
 use Modules\Transaction\Models\Transaction;
 use Modules\Transaction\Repository\Contracts\TransactionRepositoryInterface;
 use Modules\Transaction\Repository\TransactionRepository;
@@ -44,6 +45,7 @@ class TransactionServiceProvider extends ServiceProvider
         $this->app->bind(TransactionRepositoryInterface::class, function (Application $app) {
             return new TransactionRepository(
                 query: Transaction::query(),
+                apiResource: TransactionResource::class,
                 defaultCreateData: [
                     'status' => TransactionStatus::PENDING,
                 ],
