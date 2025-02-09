@@ -2,8 +2,12 @@
 
 namespace Modules\User\Providers;
 
+use App\Models\User;
+use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
+use Modules\User\Repository\Contracts\UserRepositoryInterface;
+use Modules\User\Repository\UserRepository;
 use Nwidart\Modules\Traits\PathNamespace;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -36,6 +40,11 @@ class UserServiceProvider extends ServiceProvider
     {
         $this->app->register(EventServiceProvider::class);
         $this->app->register(RouteServiceProvider::class);
+        $this->app->bind(UserRepositoryInterface::class, function (Application $app) {
+            return new UserRepository(
+                query: User::query(),
+            );
+        });
     }
 
     /**
