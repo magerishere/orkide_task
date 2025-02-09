@@ -3,6 +3,8 @@
 namespace Modules\Bank\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Modules\Bank\Enums\BankAccountStatus;
+use Modules\Bank\Enums\BankAccountType;
 
 class BankAccount extends Model
 {
@@ -18,4 +20,12 @@ class BankAccount extends Model
         'type',
         'balance',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'status' => BankAccountStatus::class,
+            'type' => BankAccountType::class,
+        ];
+    }
 }
