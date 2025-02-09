@@ -23,7 +23,8 @@ return new class extends Migration {
         Schema::create('bank_accounts', function (Blueprint $table) {
             $table->string('number', 18)->primary();
             $table->foreignIdFor(\Modules\Bank\Models\Bank::class)->constrained()->cascadeOnDelete();
-            $table->foreignIdFor(\App\Models\User::class, 'user_mobile')->constrained()->cascadeOnDelete();
+            $table->string('user_mobile', 11)->index();
+            $table->foreign('user_mobile')->references('mobile')->on(app(\App\Models\User::class)->getTable())->cascadeOnDelete();
             $table->string('status', 30);
             $table->string('type', 30);
             $table->string('balance');
@@ -43,8 +44,8 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('banks');
-        Schema::dropIfExists('bank_accounts');
         Schema::dropIfExists('bank_account_cards');
+        Schema::dropIfExists('bank_accounts');
+        Schema::dropIfExists('banks');
     }
 };
