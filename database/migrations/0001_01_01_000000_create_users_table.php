@@ -12,6 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
+            // NOTE: id column only exists for prevent errors of default laravel system process and use it by default from laravel or other third party package,
+            // each tables created by programmer use mobile column as foreign key for relation
             $table->id();
             $table->string('mobile', 11)->unique()->index()->comment('ex: 09xxxxxxxxx');
             $table->string('first_name');
