@@ -1,4 +1,5 @@
 {
     "Bank": true,
-    "Transaction": true
+    "Transaction": true,
+    "Base": true
 }
