@@ -4,6 +4,7 @@ namespace Modules\User\Http\Resources\V1;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\ResourceCollection;
+use Modules\Transaction\Http\Resources\V1\TransactionCollection;
 
 class UserCollection extends ResourceCollection
 {
@@ -19,7 +20,7 @@ class UserCollection extends ResourceCollection
             'mobile' => $user->mobile,
             'email' => $user->email,
             'full_name' => $user->fullName,
-            'transactions' => $user->transactions ?? [],
+            'transactions' => empty($user->transactions) ? [] : new TransactionCollection($user->transactions),
         ])->toArray();
     }
 }
