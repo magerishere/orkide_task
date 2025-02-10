@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\Bank\Http\Controllers\V1\Api\BankController;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,5 +14,4 @@ use Modules\Bank\Http\Controllers\V1\Api\BankController;
 */
 
 Route::group([], function () {
-    Route::resource('bank', BankController::class)->names('bank');
 });
