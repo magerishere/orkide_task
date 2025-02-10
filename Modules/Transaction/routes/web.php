@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\Transaction\Http\Controllers\TransactionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,5 +14,4 @@ use Modules\Transaction\Http\Controllers\TransactionController;
 */
 
 Route::group([], function () {
-    Route::resource('transaction', TransactionController::class)->names('transaction');
 });
