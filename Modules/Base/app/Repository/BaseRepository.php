@@ -116,6 +116,20 @@ class BaseRepository implements BaseRepositoryInterface
         return $this;
     }
 
+    public function whereRelation(...$args): BaseRepositoryInterface
+    {
+        $this->query->whereRelation(...$args);
+
+        return $this;
+    }
+
+    public function with(array $relations): BaseRepositoryInterface
+    {
+        $this->query->with(relations: $relations);
+
+        return $this;
+    }
+
     public function exists(): bool
     {
         return $this->query->exists();

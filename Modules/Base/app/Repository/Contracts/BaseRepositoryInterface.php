@@ -35,6 +35,10 @@ interface BaseRepositoryInterface
 
     public function whereHas(...$args): self;
 
+    public function whereRelation(...$args): self;
+
+    public function with(array $relations): self;
+
     public function exists(): bool;
 
     public function findBy(...$args): self;
