@@ -3,9 +3,9 @@
 namespace Modules\Transaction\Providers;
 
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
-use Modules\Transaction\app\Events\CardToCardTransaction;
-use Modules\Transaction\app\Listeners\SendDepositMail;
-use Modules\Transaction\app\Listeners\SendWithdrawMail;
+use Modules\Transaction\Events\CardToCardTransaction;
+use Modules\Transaction\Listeners\SendDepositMail;
+use Modules\Transaction\Listeners\SendWithdrawMail;
 
 class EventServiceProvider extends ServiceProvider
 {

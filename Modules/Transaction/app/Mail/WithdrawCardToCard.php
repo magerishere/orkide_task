@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Transaction\app\Mail;
+namespace Modules\Transaction\Mail;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;

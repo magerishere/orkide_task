@@ -1,10 +1,10 @@
 <?php
 
-namespace Modules\Transaction\app\Listeners;
+namespace Modules\Transaction\Listeners;
 
 use Illuminate\Support\Facades\Mail;
-use Modules\Transaction\app\Events\CardToCardTransaction;
-use Modules\Transaction\app\Mail\DepositCardToCard;
+use Modules\Transaction\Events\CardToCardTransaction;
+use Modules\Transaction\Mail\DepositCardToCard;
 
 class SendDepositMail
 {
