@@ -17,7 +17,7 @@
 - run: <code>php artisan key:generate</code>
 - run: <code>php artisan migrate --seed</code>
 - for test api use local file postman collection inside project **Orkideh.postman_collection** or download postman
-  collection: [download](https://github.com/magerishere/Orkideh.postman_collection)
+  collection: [download](https://github.com/magerishere/orkide_task/blob/master/Orkideh.postman_collection.json)
 
 ## Run Test
 
