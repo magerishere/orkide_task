@@ -21,11 +21,9 @@ class BankAccountObserver
      */
     public function updated(BankAccount $bankAccount): void
     {
-        if ($bankAccount->wasChanged(['status'])) {
+        if ($bankAccount->wasChanged(['status']) && $bankAccount->status == BankAccountStatus::INACTIVE) {
             $bankAccount->cards()->update([
-                'status' => $bankAccount->status == BankAccountStatus::ACTIVE
-                    ? BankAccountCardStatus::ACTIVE
-                    : BankAccountCardStatus::INACTIVE,
+                'status' => BankAccountCardStatus::INACTIVE,
             ]);
         }
     }
