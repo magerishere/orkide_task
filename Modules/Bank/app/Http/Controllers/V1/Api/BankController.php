@@ -5,6 +5,7 @@ namespace Modules\Bank\Http\Controllers\V1\Api;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Modules\Bank\Enums\BankAccountStatus;
 use Modules\Bank\Exceptions\BankAccountBalanceNotEnoughException;
 use Modules\Bank\Exceptions\BankAccountInActiveException;
@@ -13,6 +14,9 @@ use Modules\Bank\Http\Requests\V1\Api\BankCardToCardRequest;
 use Modules\Bank\Models\BankAccount;
 use Modules\Bank\Repository\Contracts\BankAccountCardRepositoryInterface;
 use Modules\Bank\Repository\Contracts\BankAccountRepositoryInterface;
+use Modules\Transaction\app\Mail\DepositCardToCard;
+use Modules\Transaction\app\Mail\TransactionOfCardToCard;
+use Modules\Transaction\app\Mail\WithdrawCardToCard;
 use Modules\Transaction\Enums\TransactionStatus;
 use Modules\Transaction\Models\Transaction;
 use Modules\Transaction\Repository\Contracts\TransactionRepositoryInterface;
@@ -104,12 +108,17 @@ class BankController extends Controller
             );
 
             $bankAccountRepository->decrementBalance(amount: $request->get('amount'));
-
-            $transactionRepository->update(
+            /**
+             * @var Transaction $transaction
+             */
+            $transaction = $transactionRepository->update(
                 data: [
                     'status' => TransactionStatus::COMPLETED,
                 ]
-            );
+            )->getModel();
+
+            Mail::to($transaction->sender)->send(new WithdrawCardToCard($transaction));
+            Mail::to($transaction->receiver)->send(new DepositCardToCard($transaction));
 
             return apiResponse([
                 'transaction' => $transactionRepository->getModel(asResource: true),

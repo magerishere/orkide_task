@@ -2,6 +2,7 @@
 
 namespace Modules\Bank\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -37,4 +38,10 @@ class Bank extends Model
         return BankFactory::new();
     }
 
+    public function fullName(): Attribute
+    {
+        return Attribute::get(
+            fn() => "{$this->name} {$this->name_fa}",
+        );
+    }
 }

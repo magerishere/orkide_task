@@ -13,6 +13,7 @@ use Modules\Bank\Enums\BankAccountStatus;
 use Modules\Bank\Enums\BankAccountType;
 use Modules\Bank\Repository\Contracts\BankAccountCardRepositoryInterface;
 use Modules\Bank\Repository\Contracts\BankRepositoryInterface;
+use Modules\User\Repository\Contracts\UserRepositoryInterface;
 
 class BankAccount extends Model
 {
@@ -46,6 +47,11 @@ class BankAccount extends Model
     public function bank(): BelongsTo
     {
         return $this->belongsTo(app(BankRepositoryInterface::class)->getModel());
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(app(UserRepositoryInterface::class), 'user_mobile', 'mobile');
     }
 
     public function cards(): HasMany

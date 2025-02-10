@@ -2,7 +2,10 @@
 
 namespace Modules\Transaction\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Modules\Bank\Repository\Contracts\BankAccountCardRepositoryInterface;
 use Modules\Transaction\Enums\TransactionStatus;
 
 class Transaction extends Model
@@ -24,5 +27,29 @@ class Transaction extends Model
         return [
             'status' => TransactionStatus::class,
         ];
+    }
+
+    public function fromBankAccountCard(): BelongsTo
+    {
+        return $this->belongsTo(app(BankAccountCardRepositoryInterface::class)->getModel(), 'from_bank_account_card_number');
+    }
+
+    public function toBankAccountCard(): BelongsTo
+    {
+        return $this->belongsTo(app(BankAccountCardRepositoryInterface::class)->getModel(), 'to_bank_account_card_number');
+    }
+
+    public function sender(): Attribute
+    {
+        return Attribute::get(
+            fn() => $this->fromBankAccountCard->user,
+        );
+    }
+
+    public function receiver(): Attribute
+    {
+        return Attribute::get(
+            fn() => $this->toBankAccountCard->user,
+        );
     }
 }
