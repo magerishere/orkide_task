@@ -118,8 +118,7 @@ class BankController extends Controller
                 ]
             )->getModel();
 
-
-            CardToCardTransaction::dispatch($transaction);
+            $this->cardToCardEvents(transaction: $transaction);
 
             return apiResponse([
                 'transaction' => $transactionRepository->getModel(asResource: true),
@@ -163,5 +162,10 @@ class BankController extends Controller
             'to_bank_account_card_number' => $toCardNumber,
             'amount' => $amount,
         ])->getModel();
+    }
+
+    private function cardToCardEvents(Transaction $transaction): void
+    {
+        CardToCardTransaction::dispatch($transaction);
     }
 }
