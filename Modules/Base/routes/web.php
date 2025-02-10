@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\Base\Http\Controllers\BaseController;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,5 +14,4 @@ use Modules\Base\Http\Controllers\BaseController;
 */
 
 Route::group([], function () {
-    Route::resource('base', BaseController::class)->names('base');
 });
