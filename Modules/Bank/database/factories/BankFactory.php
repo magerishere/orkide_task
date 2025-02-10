@@ -20,8 +20,8 @@ class BankFactory extends Factory
     public function definition(): array
     {
         return [
-            'code' => fake()->numerify('###'),
-            'prefix_structure' => fake()->numerify('##'),
+            'code' => randomDigits(length: 3),
+            'prefix_structure' => randomDigits(length: 2),
         ];
     }
 }
