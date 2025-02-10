@@ -12,6 +12,7 @@ use Modules\Bank\Enums\CountryCode;
 use Modules\Bank\Models\Bank;
 use Modules\Bank\Models\BankAccount;
 use Modules\Bank\Models\BankAccountCard;
+use Modules\Bank\Observers\BankAccountObserver;
 use Modules\Bank\Repository\BankAccountCardRepository;
 use Modules\Bank\Repository\BankAccountRepository;
 use Modules\Bank\Repository\BankRepository;
@@ -41,6 +42,7 @@ class BankServiceProvider extends ServiceProvider
         $this->registerConfig();
         $this->registerViews();
         $this->loadMigrationsFrom(module_path($this->name, 'database/migrations'));
+        $this->registerObservers();
     }
 
     /**
@@ -170,5 +172,10 @@ class BankServiceProvider extends ServiceProvider
         }
 
         return $paths;
+    }
+
+    private function registerObservers(): void
+    {
+        BankAccount::observe(BankAccountObserver::class);
     }
 }
