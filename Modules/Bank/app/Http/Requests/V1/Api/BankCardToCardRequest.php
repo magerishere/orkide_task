@@ -32,7 +32,7 @@ class BankCardToCardRequest extends FormRequest
             'prefix_from_card_number' => ['required', Rule::exists($bankTable, 'prefix_card_number')],
             'prefix_to_card_number' => ['required', Rule::exists($bankTable, 'prefix_card_number')],
             'from_card_number' => ['required', 'digits:16', Rule::exists($bankAccountCardTable, 'number')],
-            'to_card_number' => ['required', 'digits:16', Rule::exists($bankAccountCardTable, 'number')],
+            'to_card_number' => ['required', 'digits:16', Rule::exists($bankAccountCardTable, 'number'), 'different:from_card_number'],
             'amount' => ['required', 'integer', 'min:1000', 'max:50000000'],
         ];
     }
