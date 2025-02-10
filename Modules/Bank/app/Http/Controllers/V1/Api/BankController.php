@@ -9,9 +9,11 @@ use Illuminate\Support\Facades\Mail;
 use Modules\Bank\Enums\BankAccountStatus;
 use Modules\Bank\Exceptions\BankAccountBalanceNotEnoughException;
 use Modules\Bank\Exceptions\BankAccountInActiveException;
+use Modules\Bank\Exceptions\OriginBankAccountCardDoesNotBelongsToUserException;
 use Modules\Bank\Exceptions\UserHasNoBankAccountException;
 use Modules\Bank\Http\Requests\V1\Api\BankCardToCardRequest;
 use Modules\Bank\Models\BankAccount;
+use Modules\Bank\Models\BankAccountCard;
 use Modules\Bank\Repository\Contracts\BankAccountCardRepositoryInterface;
 use Modules\Bank\Repository\Contracts\BankAccountRepositoryInterface;
 use Modules\Transaction\app\Events\CardToCardTransaction;
@@ -95,11 +97,14 @@ class BankController extends Controller
 
             [$fromCard, $toCard] = $this->getCards(bankAccountCardRepository: $bankAccountCardRepository, fromCardNumber: $fromCardNumber, toCardNumber: $toCardNumber);
 
-            $bankAccount = $fromCard->account;
+            $this->checkCardOwner(bankAccountCard: $fromCard, user: $user);
 
-            $this->checkBankAccountStatus(bankAccount: $bankAccount);
+            $fromBankAccount = $fromCard->account;
+            $this->checkBankAccountStatus(bankAccount: $fromBankAccount);
+            $this->checkBankAccountBalance(bankAccount: $fromBankAccount, amount: $amount);
 
-            $this->checkBankAccountBalance(bankAccount: $bankAccount, amount: $amount);
+            $toBankAccount = $toCard->account;
+            $this->checkBankAccountStatus(bankAccount: $toBankAccount);
 
             $this->createTransactionsOfCardToCard(
                 transactionRepository: $transactionRepository,
@@ -135,6 +140,13 @@ class BankController extends Controller
             $bankAccountCardRepository->freshQuery()->findById(id: $fromCardNumber)->getModel(),
             $bankAccountCardRepository->freshQuery()->findById(id: $toCardNumber)->getModel(),
         ];
+    }
+
+    private function checkCardOwner(BankAccountCard $bankAccountCard, User $user): void
+    {
+        if (strval($user->mobile) !== strval($bankAccountCard->user->mobile)) {
+            throw new OriginBankAccountCardDoesNotBelongsToUserException();
+        }
     }
 
     private function checkBankAccountStatus(?BankAccount $bankAccount): void
