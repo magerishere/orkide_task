@@ -62,7 +62,7 @@ class User extends Authenticatable
     public function bankAccounts(): HasMany
     {
 
-        return $this->hasMany(app(BankAccountRepositoryInterface::class)->getModel(), 'user_mobile');
+        return $this->hasMany(app(BankAccountRepositoryInterface::class)->getModel(), 'user_mobile', 'mobile');
     }
 
     public function bankAccountCards(): HasManyThrough

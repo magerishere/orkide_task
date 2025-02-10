@@ -34,6 +34,9 @@ class BankAccountCardFactory extends Factory
         return $this->state(fn(array $attributes) => [
             'bank_account_number' => $bankAccount->number,
             'number' => $bankAccount->bank->prefix_card_number . fake()->numerify('##########'),
+            'status' => $bankAccount->status == BankAccountStatus::ACTIVE
+                ? BankAccountCardStatus::ACTIVE
+                : BankAccountCardStatus::INACTIVE,
         ]);
     }
 }

@@ -16,6 +16,6 @@ use Modules\Bank\Http\Controllers\V1\Api\BankController;
 
 Route::middleware([])->prefix('banks')->as('banks.')->controller(BankController::class)->group(function () {
     Route::prefix('{user}')->group(function() {
-        Route::post('/card_to_card','cardToCard');
+        Route::post('/card_to_card', 'cardToCard')->name('card-to-card');
     });
 });
