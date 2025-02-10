@@ -5,6 +5,7 @@ namespace Modules\Bank\Http\Controllers\V1\Api;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Modules\Bank\Enums\BankAccountStatus;
 use Modules\Bank\Exceptions\BankAccountBalanceNotEnoughException;
 use Modules\Bank\Exceptions\BankAccountInActiveException;
@@ -87,39 +88,45 @@ class BankController extends Controller
     )
     {
         try {
-            $fromCardNumber = $request->get('from_card_number');
-            $toCardNumber = $request->get('to_card_number');
-            $amount = $request->get('amount');
 
-            [$fromCard, $toCard] = $this->getCards(bankAccountCardRepository: $bankAccountCardRepository, fromCardNumber: $fromCardNumber, toCardNumber: $toCardNumber);
+            $transaction = null;
+            DB::transaction(function () use ($request, $user, $bankAccountRepository, $bankAccountCardRepository, $transactionRepository, &$transaction) {
+                $fromCardNumber = $request->get('from_card_number');
+                $toCardNumber = $request->get('to_card_number');
+                $amount = $request->get('amount');
 
-            $this->checkCardOwner(bankAccountCard: $fromCard, user: $user);
+                [$fromCard, $toCard] = $this->getCards(bankAccountCardRepository: $bankAccountCardRepository, fromCardNumber: $fromCardNumber, toCardNumber: $toCardNumber);
 
-            $fromBankAccount = $fromCard->account;
-            $this->checkBankAccountStatus(bankAccount: $fromBankAccount);
-            $this->checkBankAccountBalance(bankAccount: $fromBankAccount, amount: $amount);
+                $this->checkCardOwner(bankAccountCard: $fromCard, user: $user);
 
-            $toBankAccount = $toCard->account;
-            $this->checkBankAccountStatus(bankAccount: $toBankAccount);
+                $fromBankAccount = $fromCard->account;
+                $this->checkBankAccountStatus(bankAccount: $fromBankAccount);
+                $this->checkBankAccountBalance(bankAccount: $fromBankAccount, amount: $amount);
 
-            $this->createTransactionsOfCardToCard(
-                transactionRepository: $transactionRepository,
-                fromCardNumber: $fromCardNumber,
-                toCardNumber: $toCardNumber,
-                amount: $amount
-            );
+                $toBankAccount = $toCard->account;
+                $this->checkBankAccountStatus(bankAccount: $toBankAccount);
 
-            $bankAccountRepository->decrementBalance(amount: $request->get('amount'));
-            /**
-             * @var Transaction $transaction
-             */
-            $transaction = $transactionRepository->update(
-                data: [
-                    'status' => TransactionStatus::COMPLETED,
-                ]
-            )->getModel();
+                $this->createTransactionsOfCardToCard(
+                    transactionRepository: $transactionRepository,
+                    fromCardNumber: $fromCardNumber,
+                    toCardNumber: $toCardNumber,
+                    amount: $amount
+                );
 
-            $this->cardToCardEvents(transaction: $transaction);
+                $bankAccountRepository->decrementBalance(amount: $request->get('amount'));
+                /**
+                 * @var Transaction $transaction
+                 */
+                $transaction = $transactionRepository->update(
+                    data: [
+                        'status' => TransactionStatus::COMPLETED,
+                    ]
+                )->getModel();
+            }, 3);
+
+            if ($transaction) {
+                $this->cardToCardEvents(transaction: $transaction);
+            }
 
             return apiResponse([
                 'transaction' => $transactionRepository->getModel(asResource: true),
