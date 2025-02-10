@@ -3,6 +3,9 @@
 namespace Modules\Transaction\Providers;
 
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
+use Modules\Transaction\app\Events\CardToCardTransaction;
+use Modules\Transaction\app\Listeners\SendDepositMail;
+use Modules\Transaction\app\Listeners\SendWithdrawMail;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -11,7 +14,12 @@ class EventServiceProvider extends ServiceProvider
      *
      * @var array<string, array<int, string>>
      */
-    protected $listen = [];
+    protected $listen = [
+        CardToCardTransaction::class => [
+            SendWithdrawMail::class,
+            SendDepositMail::class
+        ],
+    ];
 
     /**
      * Indicates if events should be discovered.

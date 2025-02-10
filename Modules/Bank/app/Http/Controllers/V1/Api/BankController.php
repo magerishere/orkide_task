@@ -14,6 +14,7 @@ use Modules\Bank\Http\Requests\V1\Api\BankCardToCardRequest;
 use Modules\Bank\Models\BankAccount;
 use Modules\Bank\Repository\Contracts\BankAccountCardRepositoryInterface;
 use Modules\Bank\Repository\Contracts\BankAccountRepositoryInterface;
+use Modules\Transaction\app\Events\CardToCardTransaction;
 use Modules\Transaction\app\Mail\DepositCardToCard;
 use Modules\Transaction\app\Mail\TransactionOfCardToCard;
 use Modules\Transaction\app\Mail\WithdrawCardToCard;
@@ -117,8 +118,8 @@ class BankController extends Controller
                 ]
             )->getModel();
 
-            Mail::to($transaction->sender)->send(new WithdrawCardToCard($transaction));
-            Mail::to($transaction->receiver)->send(new DepositCardToCard($transaction));
+
+            CardToCardTransaction::dispatch($transaction);
 
             return apiResponse([
                 'transaction' => $transactionRepository->getModel(asResource: true),
