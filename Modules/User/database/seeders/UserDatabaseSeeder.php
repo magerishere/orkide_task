@@ -34,6 +34,12 @@ class UserDatabaseSeeder extends Seeder
             [
                 'mobile' => '09100000003',
             ],
+            [
+                'mobile' => '09100000004',
+            ],
+            [
+                'mobile' => '09100000005',
+            ],
         ];
     }
 }

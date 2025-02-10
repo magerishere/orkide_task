@@ -6,6 +6,8 @@ use App\Models\User;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
+use Modules\User\Http\Resources\V1\UserCollection;
+use Modules\User\Http\Resources\V1\UserResource;
 use Modules\User\Repository\Contracts\UserRepositoryInterface;
 use Modules\User\Repository\UserRepository;
 use Nwidart\Modules\Traits\PathNamespace;
@@ -43,6 +45,8 @@ class UserServiceProvider extends ServiceProvider
         $this->app->bind(UserRepositoryInterface::class, function (Application $app) {
             return new UserRepository(
                 query: User::query(),
+                apiResource: UserResource::class,
+                apiResourceCollection: UserCollection::class,
             );
         });
     }

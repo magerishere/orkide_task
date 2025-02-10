@@ -5,9 +5,11 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Modules\Bank\Repository\BankAccountRepository;
+use Modules\Bank\Repository\Contracts\BankAccountCardRepositoryInterface;
 use Modules\Bank\Repository\Contracts\BankAccountRepositoryInterface;
 
 class User extends Authenticatable
@@ -60,5 +62,17 @@ class User extends Authenticatable
     {
 
         return $this->hasMany(app(BankAccountRepositoryInterface::class)->getModel(), 'user_mobile');
+    }
+
+    public function bankAccountCards(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            app(BankAccountCardRepositoryInterface::class)->getModel(),
+            app(BankAccountRepositoryInterface::class)->getModel(),
+            'user_mobile',
+            'bank_account_number',
+            'mobile',
+            'number'
+        );
     }
 }

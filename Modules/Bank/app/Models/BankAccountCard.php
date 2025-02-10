@@ -2,15 +2,18 @@
 
 namespace Modules\Bank\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Modules\Bank\Database\Factories\BankAccountCardFactory;
 use Modules\Bank\Enums\BankAccountCardStatus;
 use Modules\Bank\Repository\Contracts\BankAccountRepositoryInterface;
 use Modules\Bank\Repository\Contracts\BankRepositoryInterface;
+use Modules\Transaction\Repository\Contracts\TransactionRepositoryInterface;
 use Modules\User\Repository\Contracts\UserRepositoryInterface;
 
 class BankAccountCard extends Model
@@ -58,6 +61,31 @@ class BankAccountCard extends Model
             app(UserRepositoryInterface::class)->getModel(),
             app(BankAccountRepositoryInterface::class)->getModel(),
             'number', 'mobile', 'bank_account_number', 'user_mobile'
+        );
+    }
+
+    public function sentTransactions(): HasMany
+    {
+        return $this->hasMany(
+            app(TransactionRepositoryInterface::class)->getModel(),
+            'from_bank_account_card_number',
+        );
+    }
+
+    public function receivedTransactions(): HasMany
+    {
+        return $this->hasMany(
+            app(TransactionRepositoryInterface::class)->getModel(),
+            'to_bank_account_card_number',
+        );
+    }
+
+    public function allTransactions(): Attribute
+    {
+        return Attribute::get(
+            fn() => $this->sentTransactions->merge(
+                $this->receivedTransactions,
+            )
         );
     }
 }

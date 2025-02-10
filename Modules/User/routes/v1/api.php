@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\User\Http\Controllers\UserController;
+use Modules\User\Http\Controllers\V1\Api\UserController;
 
 /*
  *--------------------------------------------------------------------------
@@ -14,6 +14,6 @@ use Modules\User\Http\Controllers\UserController;
  *
 */
 
-Route::middleware(['auth:sanctum'])->prefix('v1')->group(function () {
-    Route::apiResource('user', UserController::class)->names('user');
+Route::middleware([])->prefix('users')->as('users.')->controller(UserController::class)->group(function () {
+    Route::get('/most/transactions', 'usersWhichMostTransactions');
 });
