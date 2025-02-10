@@ -20,9 +20,14 @@ if (!function_exists('apiResponse')) {
         $status = $status ?: \Symfony\Component\HttpFoundation\Response::HTTP_OK;
 
         $responseData = [
-            'result' => $data,
             'message' => $message,
         ];
+
+        if (@$data['errors']) {
+            $responseData['errors'] = $data['errors'];
+        } else {
+            $responseData['result'] = $data;
+        }
         return response()->json(data: $responseData, status: $status);
     }
 }
