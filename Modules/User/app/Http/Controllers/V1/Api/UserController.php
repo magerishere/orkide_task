@@ -106,11 +106,12 @@ class UserController extends Controller
 
     private function topUsersIdsWhichMostTransactions(UserRepositoryInterface $userRepository, TransactionRepositoryInterface $transactionRepository, int $limit = 3)
     {
+        $transactionTable = $transactionRepository->getModel()->getTable();
         return $userRepository->freshQuery()->getQuery()->select('id')->withCount([
-            'bankAccountCards as total_transactions' => function (Builder $builder) use ($transactionRepository) {
-                $builder->select(DB::raw('COUNT(ref_number)'))->join($transactionRepository->getModel()->getTable(), function (JoinClause $join) {
-                    $join->on('transactions.from_bank_account_card_number', '=', 'bank_account_cards.number')
-                        ->orOn('transactions.to_bank_account_card_number', '=', 'bank_account_cards.number');
+            'bankAccountCards as total_transactions' => function (Builder $builder) use ($transactionTable) {
+                $builder->select(DB::raw('COUNT(ref_number)'))->join($transactionTable, function (JoinClause $join) use ($transactionTable) {
+                    $join->on("{$transactionTable}.from_bank_account_card_number", '=', 'bank_account_cards.number')
+                        ->orOn("{$transactionTable}.to_bank_account_card_number", '=', 'bank_account_cards.number');
                 });
             }
         ])->orderByDesc('total_transactions')->limit(value: $limit)->pluck('id');
