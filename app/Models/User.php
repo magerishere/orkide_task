@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
@@ -73,6 +74,13 @@ class User extends Authenticatable
             'bank_account_number',
             'mobile',
             'number'
+        );
+    }
+
+    public function fullName(): Attribute
+    {
+        return Attribute::get(
+            fn() => "{$this->first_name} {$this->last_name}"
         );
     }
 }
