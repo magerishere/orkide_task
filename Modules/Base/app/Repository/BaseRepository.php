@@ -14,7 +14,7 @@ use Modules\Base\Repository\Contracts\BaseRepositoryInterface;
 class BaseRepository implements BaseRepositoryInterface
 {
     protected Model $model;
-    protected readonly Collection|\Illuminate\Support\Collection|LengthAwarePaginator|LazyCollection $collection;
+    protected Collection|\Illuminate\Support\Collection|LengthAwarePaginator|LazyCollection $collection;
 
     public function __construct(
         protected Builder          $query,
@@ -52,8 +52,12 @@ class BaseRepository implements BaseRepositoryInterface
             : $this->model;
     }
 
-    public function getCollection(bool $asResource = false): Collection|LengthAwarePaginator|LazyCollection|ResourceCollection
+    public function getCollection(bool $asResource = false, ?\Closure $closure = null): Collection|LengthAwarePaginator|LazyCollection|ResourceCollection
     {
+        if ($closure) {
+            $this->setCollection(collection: $closure($this->collection));
+        }
+
         return $asResource
             ? new $this->apiResourceCollection($this->collection)
             : $this->collection;
@@ -98,6 +102,20 @@ class BaseRepository implements BaseRepositoryInterface
         return $this;
     }
 
+    public function whereIn(...$args): BaseRepositoryInterface
+    {
+        $this->query->whereIn(...$args);
+
+        return $this;
+    }
+
+    public function whereHas(...$args): BaseRepositoryInterface
+    {
+        $this->query->whereHas(...$args);
+
+        return $this;
+    }
+
     public function exists(): bool
     {
         return $this->query->exists();
@@ -123,11 +141,29 @@ class BaseRepository implements BaseRepositoryInterface
         return $this->setModel(model: $this->query->first());
     }
 
+
+    public function all(array $columns = ['*'], array $relations = []): BaseRepositoryInterface
+    {
+        $this->setCollection(
+            collection: $this->query->select(columns: $columns)->with(relations: $relations)->get()
+        );
+
+        return $this;
+    }
+
+
     private function setModel(?Model $model = null): BaseRepositoryInterface
     {
         if ($model instanceof Model) {
             $this->model = $model;
         }
+
+        return $this;
+    }
+
+    private function setCollection(Collection|\Illuminate\Support\Collection|LengthAwarePaginator|LazyCollection $collection): BaseRepositoryInterface
+    {
+        $this->collection = $collection;
 
         return $this;
     }

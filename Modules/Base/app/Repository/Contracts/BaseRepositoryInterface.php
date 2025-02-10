@@ -20,7 +20,7 @@ interface BaseRepositoryInterface
 
     public function getModel(bool $asResource = false): Model|JsonResource;
 
-    public function getCollection(bool $asResource = false): Collection|LengthAwarePaginator|LazyCollection|ResourceCollection;
+    public function getCollection(bool $asResource = false, ?\Closure $closure = null): Collection|LengthAwarePaginator|LazyCollection|ResourceCollection;
 
     public function create(array $data = []): self;
 
@@ -31,10 +31,16 @@ interface BaseRepositoryInterface
 
     public function where(...$args): self;
 
+    public function whereIn(...$args): self;
+
+    public function whereHas(...$args): self;
+
     public function exists(): bool;
 
     public function findBy(...$args): self;
 
     public function findById(int|string $id, ?string $column = null): self;
     public function first(): self;
+
+    public function all(array $columns = ['*'], array $relations = []): self;
 }
