@@ -74,7 +74,7 @@ class BankAccountCard extends Model
 
     public function latestSentTransactions(): HasMany
     {
-        return $this->sentTransactions()->latest()->take(10);
+        return $this->sentTransactions()->latest()->take(config('user.top_users_which_most_transactions.limit'));
     }
 
     public function receivedTransactions(): HasMany
@@ -87,7 +87,7 @@ class BankAccountCard extends Model
 
     public function latestReceivedTransactions(): HasMany
     {
-        return $this->receivedTransactions()->latest()->take(10);
+        return $this->receivedTransactions()->latest()->take(config('user.top_users_which_most_transactions.limit'));
     }
 
     public function allTransactions(): Attribute
