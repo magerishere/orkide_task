@@ -72,6 +72,11 @@ class BankAccountCard extends Model
         );
     }
 
+    public function latestSentTransactions(): HasMany
+    {
+        return $this->sentTransactions()->latest()->take(10);
+    }
+
     public function receivedTransactions(): HasMany
     {
         return $this->hasMany(
@@ -80,11 +85,33 @@ class BankAccountCard extends Model
         );
     }
 
+    public function latestReceivedTransactions(): HasMany
+    {
+        return $this->receivedTransactions()->latest()->take(10);
+    }
+
     public function allTransactions(): Attribute
     {
+        $this->loadMissing([
+            'sentTransactions',
+            'receivedTransactions',
+        ]);
         return Attribute::get(
             fn() => $this->sentTransactions->merge(
                 $this->receivedTransactions,
+            )
+        );
+    }
+
+    public function allLatestTransactions(): Attribute
+    {
+        $this->loadMissing([
+            'latestSentTransactions',
+            'latestReceivedTransactions',
+        ]);
+        return Attribute::get(
+            fn() => $this->latestSentTransactions->merge(
+                $this->latestReceivedTransactions,
             )
         );
     }
