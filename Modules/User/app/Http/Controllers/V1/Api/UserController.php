@@ -26,13 +26,11 @@ class UserController extends Controller
                 ->freshQuery()
                 ->whereIn('id', $topUsersIds)
                 ->all(relations: [
-                    'bankAccountCards' => fn(HasManyThrough $builder) => $builder->whereHas('sentTransactions')->orWhereHas('receivedTransactions'),
-                    'bankAccountCards.sentTransactions',
-                    'bankAccountCards.receivedTransactions'
+                    'bankAccountCards' => fn(HasManyThrough $builder) => $builder->whereHas('latestSentTransactions')->orWhereHas('latestReceivedTransactions'),
                 ])
                 ->getCollection(asResource: true, closure: function (Collection $collection) {
                     return $collection->map(function (User $user) {
-                        $user->transactions = $user->bankAccountCards->map(fn(BankAccountCard $bankAccountCard) => $bankAccountCard->allTransactions)->collapse();
+                        $user->transactions = $user->bankAccountCards->map(fn(BankAccountCard $bankAccountCard) => $bankAccountCard->allLatestTransactions)->collapse()->take(10);
 
                         $user->makeHidden('bankAccountCards');
                         return $user;
