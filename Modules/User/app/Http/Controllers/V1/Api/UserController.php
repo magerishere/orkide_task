@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Facades\DB;
@@ -22,6 +23,7 @@ class UserController extends Controller
         try {
             $topUsersIds = $this->topUsersIdsWhichMostTransactions(limit: 3);
 
+            $createdAtTransactionsDate = now()->subMinutes(value: 10);
             $users = $userRepository
                 ->freshQuery()
                 ->whereIn('id', $topUsersIds)
@@ -46,15 +48,17 @@ class UserController extends Controller
         }
     }
 
-    private function topUsersIdsWhichMostTransactions(int $limit = 3)
+    private function topUsersIdsWhichMostTransactions(int $limit = 3, ?string $transactionCreatedAtDate = null)
     {
         $userRepository = app(UserRepositoryInterface::class);
         $transactionTable = app(TransactionRepositoryInterface::class)->getModel()->getTable();
         $bankAccountCardsTable = app(BankAccountCardRepositoryInterface::class)->getModel()->getTable();
+
+        $transactionCreatedAtDate ??= now()->subMinutes(value: 10);
         return $userRepository->freshQuery()->getQuery()->select('id')->withCount([
-            'bankAccountCards as total_transactions' => function (Builder $builder) use ($transactionTable, $bankAccountCardsTable) {
-                $builder->select(DB::raw('COUNT(ref_number)'))->join($transactionTable, function (JoinClause $join) use ($transactionTable, $bankAccountCardsTable) {
-                    $join->on("{$transactionTable}.from_bank_account_card_number", '=', "{$bankAccountCardsTable}.number")
+            'bankAccountCards as total_transactions' => function (Builder $builder) use ($transactionTable, $bankAccountCardsTable, $transactionCreatedAtDate) {
+                $builder->select(DB::raw('COUNT(ref_number)'))->join($transactionTable, function (JoinClause $join) use ($transactionTable, $bankAccountCardsTable, $transactionCreatedAtDate) {
+                    $join->whereDate("{$transactionTable}.created_at", '>=', $transactionCreatedAtDate)->on("{$transactionTable}.from_bank_account_card_number", '=', "{$bankAccountCardsTable}.number")
                         ->orOn("{$transactionTable}.to_bank_account_card_number", '=', "{$bankAccountCardsTable}.number");
                 });
             }
