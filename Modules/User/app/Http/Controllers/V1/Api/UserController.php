@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Facades\DB;
 use Modules\Bank\Models\BankAccountCard;
+use Modules\Bank\Repository\Contracts\BankAccountCardRepositoryInterface;
 use Modules\Transaction\Repository\Contracts\TransactionRepositoryInterface;
 use Modules\User\Http\Requests\V1\Api\UsersWhichMostTransactionsRequest;
 use Modules\User\Repository\Contracts\UserRepositoryInterface;
@@ -19,7 +20,7 @@ class UserController extends Controller
     public function usersWhichMostTransactions(UsersWhichMostTransactionsRequest $request, UserRepositoryInterface $userRepository, TransactionRepositoryInterface $transactionRepository)
     {
         try {
-            $topUsersIds = $this->topUsersIdsWhichMostTransactions(userRepository: $userRepository, transactionRepository: $transactionRepository, limit: 3);
+            $topUsersIds = $this->topUsersIdsWhichMostTransactions(limit: 3);
 
             $users = $userRepository
                 ->freshQuery()
@@ -47,14 +48,16 @@ class UserController extends Controller
         }
     }
 
-    private function topUsersIdsWhichMostTransactions(UserRepositoryInterface $userRepository, TransactionRepositoryInterface $transactionRepository, int $limit = 3)
+    private function topUsersIdsWhichMostTransactions(int $limit = 3)
     {
-        $transactionTable = $transactionRepository->getModel()->getTable();
+        $userRepository = app(UserRepositoryInterface::class);
+        $transactionTable = app(TransactionRepositoryInterface::class)->getModel()->getTable();
+        $bankAccountCardsTable = app(BankAccountCardRepositoryInterface::class)->getModel()->getTable();
         return $userRepository->freshQuery()->getQuery()->select('id')->withCount([
-            'bankAccountCards as total_transactions' => function (Builder $builder) use ($transactionTable) {
-                $builder->select(DB::raw('COUNT(ref_number)'))->join($transactionTable, function (JoinClause $join) use ($transactionTable) {
-                    $join->on("{$transactionTable}.from_bank_account_card_number", '=', 'bank_account_cards.number')
-                        ->orOn("{$transactionTable}.to_bank_account_card_number", '=', 'bank_account_cards.number');
+            'bankAccountCards as total_transactions' => function (Builder $builder) use ($transactionTable, $bankAccountCardsTable) {
+                $builder->select(DB::raw('COUNT(ref_number)'))->join($transactionTable, function (JoinClause $join) use ($transactionTable, $bankAccountCardsTable) {
+                    $join->on("{$transactionTable}.from_bank_account_card_number", '=', "{$bankAccountCardsTable}.number")
+                        ->orOn("{$transactionTable}.to_bank_account_card_number", '=', "{$bankAccountCardsTable}.number");
                 });
             }
         ])->orderByDesc('total_transactions')->limit(value: $limit)->pluck('id');
