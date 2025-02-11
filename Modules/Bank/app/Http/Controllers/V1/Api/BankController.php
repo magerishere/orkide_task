@@ -5,8 +5,10 @@ namespace Modules\Bank\Http\Controllers\V1\Api;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Modules\Bank\Enums\BankAccountCardStatus;
 use Modules\Bank\Enums\BankAccountStatus;
 use Modules\Bank\Exceptions\BankAccountBalanceNotEnoughException;
+use Modules\Bank\Exceptions\BankAccountCardInActiveException;
 use Modules\Bank\Exceptions\BankAccountInActiveException;
 use Modules\Bank\Exceptions\OriginBankAccountCardDoesNotBelongsToUserException;
 use Modules\Bank\Exceptions\UserHasNoBankAccountException;
@@ -39,8 +41,9 @@ class BankController extends Controller
                 $amount = $request->get('amount');
 
                 [$fromCard, $toCard] = $this->getCards(fromCardNumber: $fromCardNumber, toCardNumber: $toCardNumber);
-
                 $this->checkCardOwner(bankAccountCard: $fromCard, user: $user);
+                $this->checkBankAccountCardStatus(bankAccountCard: $fromCard);
+                $this->checkBankAccountCardStatus(bankAccountCard: $toCard);
 
                 $fromBankAccount = $fromCard->account;
                 $this->checkBankAccountStatus(bankAccount: $fromBankAccount);
@@ -109,6 +112,15 @@ class BankController extends Controller
     {
         if (!$bankAccount->checkBalance(amount: $amount)) {
             throw new BankAccountBalanceNotEnoughException();
+        }
+    }
+
+    public function checkBankAccountCardStatus(?BankAccountCard $bankAccountCard): void
+    {
+        if ($bankAccountCard->status == BankAccountCardStatus::INACTIVE) {
+            throw new BankAccountCardInActiveException(__('bank::v1.errors.bank_account_card_in_active', [
+                'card_number' => $bankAccountCard->number
+            ]));
         }
     }
 
