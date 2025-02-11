@@ -38,7 +38,7 @@ class BankController extends Controller
                 $toCardNumber = $request->get('to_card_number');
                 $amount = $request->get('amount');
 
-                [$fromCard, $toCard] = $this->getCards(bankAccountCardRepository: $bankAccountCardRepository, fromCardNumber: $fromCardNumber, toCardNumber: $toCardNumber);
+                [$fromCard, $toCard] = $this->getCards(fromCardNumber: $fromCardNumber, toCardNumber: $toCardNumber);
 
                 $this->checkCardOwner(bankAccountCard: $fromCard, user: $user);
 
@@ -49,8 +49,7 @@ class BankController extends Controller
                 $toBankAccount = $toCard->account;
                 $this->checkBankAccountStatus(bankAccount: $toBankAccount);
 
-                $this->createTransactionsOfCardToCard(
-                    transactionRepository: $transactionRepository,
+                $transaction = $this->createTransactionsOfCardToCard(
                     fromCardNumber: $fromCardNumber,
                     toCardNumber: $toCardNumber,
                     amount: $amount
@@ -60,7 +59,7 @@ class BankController extends Controller
                 /**
                  * @var Transaction $transaction
                  */
-                $transaction = $transactionRepository->update(
+                $transaction = $transactionRepository->findById($transaction->ref_number)->update(
                     data: [
                         'status' => TransactionStatus::COMPLETED,
                     ]
@@ -80,8 +79,9 @@ class BankController extends Controller
         }
     }
 
-    private function getCards(BankAccountCardRepositoryInterface $bankAccountCardRepository, string $fromCardNumber, string $toCardNumber): array
+    private function getCards(string $fromCardNumber, string $toCardNumber): array
     {
+        $bankAccountCardRepository = app(BankAccountCardRepositoryInterface::class);
         return [
             $bankAccountCardRepository->freshQuery()->findById(id: $fromCardNumber)->getModel(),
             $bankAccountCardRepository->freshQuery()->findById(id: $toCardNumber)->getModel(),
@@ -112,8 +112,9 @@ class BankController extends Controller
         }
     }
 
-    private function createTransactionsOfCardToCard(TransactionRepositoryInterface $transactionRepository, string $fromCardNumber, string $toCardNumber, int $amount): Transaction
+    private function createTransactionsOfCardToCard(string $fromCardNumber, string $toCardNumber, int $amount): Transaction
     {
+        $transactionRepository = app(TransactionRepositoryInterface::class);
         return $transactionRepository->freshQuery()->create([
             'ref_number' => $transactionRepository->newRefNumber(),
             'from_bank_account_card_number' => $fromCardNumber,
